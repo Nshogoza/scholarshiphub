@@ -1,0 +1,30 @@
+spring:
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  jwt:
+    secret: test_only_secret_key_that_is_at_least_256_bits_long_1234567890
+    access-token-expiration-minutes: 15
+    refresh-token-expiration-days: 7
+    issuer: scholarshiphub-test
+  security:
+    lockout:
+      max-attempts: 3
+      duration-minutes: 15
+    email-verification:
+      token-expiration-hours: 24
+      require-verified-email-to-login: true
+    password-reset:
+      token-expiration-minutes: 30
+  upload:
+    directory: ./build-test-uploads
+    max-file-size-bytes: 10485760
+    allowed-content-types: application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+logging:
+  level:
+    com.scholarshiphub: DEBUG

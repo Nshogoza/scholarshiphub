@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: scholarshiphub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-scholarshiphub}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Narasha}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-scholarshiphub}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - scholarshiphub-net
+
+  # Local SMTP sink: catches every email the backend sends (verification,
+  # password reset, notifications) with a web UI at http://localhost:8025,
+  # so the full email-driven flow works out of the box with no real mail
+  # provider credentials. Swap MAIL_HOST/PORT for a real provider in prod.
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: scholarshiphub-mailhog
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # web UI
+      - "1025:1025" # SMTP
+    networks:
+      - scholarshiphub-net
+
+  backend:
+    build:
+      context: ./backend
+    container_name: scholarshiphub-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8080
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-scholarshiphub}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-Narasha}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
+      JWT_ACCESS_TOKEN_EXP_MIN: ${JWT_ACCESS_TOKEN_EXP_MIN:-15}
+      JWT_REFRESH_TOKEN_EXP_DAYS: ${JWT_REFRESH_TOKEN_EXP_DAYS:-7}
+      LOCKOUT_MAX_ATTEMPTS: ${LOCKOUT_MAX_ATTEMPTS:-5}
+      LOCKOUT_DURATION_MINUTES: ${LOCKOUT_DURATION_MINUTES:-15}
+      EMAIL_VERIFICATION_EXP_HOURS: ${EMAIL_VERIFICATION_EXP_HOURS:-24}
+      REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-true}
+      PASSWORD_RESET_EXP_MIN: ${PASSWORD_RESET_EXP_MIN:-30}
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_SMTP_AUTH: "false"
+      MAIL_SMTP_STARTTLS: "false"
+      UPLOAD_DIR: /app/uploads
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8081}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8081}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    volumes:
+      - backend-uploads:/app/uploads
+      - backend-logs:/app/logs
+    networks:
+      - scholarshiphub-net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: scholarshiphub-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+    networks:
+      - scholarshiphub-net
+
+networks:
+  scholarshiphub-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  backend-uploads:
+  backend-logs:

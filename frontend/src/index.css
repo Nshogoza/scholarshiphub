@@ -1,0 +1,187 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/jetbrains-mono";
+
+/*
+  Visual identity: an academic-registry / letterhead language, deliberately
+  not the indigo-and-gradient-blob SaaS-starter look. Warm paper surfaces,
+  ink instead of slate, a serif display face for headings, a monospace for
+  reference numbers and data. Separation comes from color and soft shadow,
+  not ruled hairlines -- rules are reserved for places they mean something
+  (a table row, a stepper's progress track).
+*/
+@theme {
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Fraunces Variable", "Iowan Old Style", "Georgia", serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", monospace;
+
+  /* Warm paper surfaces, not cold slate */
+  --color-paper: #faf7f0;
+  --color-paper-raised: #fffdf8;
+  --color-ink-50: #f7f5f1;
+  --color-ink-100: #ece8de;
+  --color-ink-200: #ddd6c6;
+  --color-ink-300: #c3b9a3;
+  --color-ink-400: #9c9077;
+  --color-ink-500: #746b57;
+  --color-ink-600: #564f40;
+  --color-ink-700: #3d3729;
+  --color-ink-800: #29241a;
+  --color-ink-900: #1b170f;
+  --color-ink-950: #100d08;
+
+  /* Brand = deep registrar navy, used sparingly, never as a wash */
+  --color-brand-50: #eef3f8;
+  --color-brand-100: #dde7f0;
+  --color-brand-200: #b7cde0;
+  --color-brand-300: #8babc9;
+  --color-brand-400: #5d84a8;
+  --color-brand-500: #3c6288;
+  --color-brand-600: #234a70;
+  --color-brand-700: #1a3a5a;
+  --color-brand-800: #142c46;
+  --color-brand-900: #0f2036;
+  --color-brand-950: #091420;
+
+  /* Accent = antique gold (medal / seal / ribbon), not amber-500 */
+  --color-accent-50: #fbf6e9;
+  --color-accent-100: #f5ead0;
+  --color-accent-200: #e9d29e;
+  --color-accent-300: #dbb968;
+  --color-accent-400: #cca23f;
+  --color-accent-500: #b8862a;
+  --color-accent-600: #9c6b1e;
+  --color-accent-700: #7d5518;
+  --color-accent-800: #634211;
+
+  --color-status-good: #0ca30c;
+  --color-status-good-bg: #eaf6ea;
+  --color-status-warning: #97640c;
+  --color-status-warning-bg: #f8f0dd;
+  --color-status-serious: #a3440c;
+  --color-status-serious-bg: #f7ece2;
+  --color-status-critical: #ad2e2e;
+  --color-status-critical-bg: #f7e6e6;
+  --color-status-neutral: #564f40;
+  --color-status-neutral-bg: #ece8de;
+
+  --shadow-card: 0 1px 2px rgba(41, 30, 10, 0.04), 0 6px 16px -6px rgba(41, 30, 10, 0.10);
+  --shadow-raised: 0 2px 4px rgba(41, 30, 10, 0.05), 0 16px 32px -10px rgba(41, 30, 10, 0.18);
+  --shadow-popover: 0 4px 10px rgba(41, 30, 10, 0.08), 0 20px 45px -12px rgba(41, 30, 10, 0.28);
+}
+
+body {
+  @apply bg-paper text-ink-900 antialiased;
+  font-feature-settings: "cv02", "cv03", "cv11";
+}
+
+::selection {
+  background-color: var(--color-accent-200);
+  color: var(--color-ink-950);
+}
+
+* {
+  scrollbar-color: var(--color-ink-300) transparent;
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-300);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Fine dot-grid, used only behind the masthead -- a paper texture cue,
+   not a decorative gradient blob. */
+.bg-ledger-dots {
+  background-image: radial-gradient(circle, rgba(27, 23, 15, 0.14) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Warm color washes for section backgrounds -- color doing the work of
+   separation instead of a ruled line. */
+.bg-wash-navy {
+  background: radial-gradient(120% 140% at 15% 0%, #14304e 0%, #0f2036 55%, #091420 100%);
+}
+.bg-wash-gold {
+  background: linear-gradient(160deg, var(--color-accent-50) 0%, #f3e6c8 100%);
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--color-ink-100) 25%, var(--color-ink-50) 37%, var(--color-ink-100) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Underline-grow link, used instead of a background-color hover swap. */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size 0.25s ease;
+}
+.link-underline:hover { background-size: 100% 1px; }
+
+/* ---- Ambient motion -----------------------------------------------------
+   A handful of soft, slow-drifting orbs used behind hero/CTA panels --
+   the "bubbles" -- kept to the site's own navy/gold palette at low opacity
+   so they read as atmosphere, not decoration bolted on from elsewhere. */
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(24px, -30px) scale(1.06); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-28px, 22px) scale(0.94); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(18px, 26px) scale(1.08); }
+}
+.orb { position: absolute; border-radius: 9999px; filter: blur(48px); pointer-events: none; }
+.orb-drift-a { animation: drift-a 22s ease-in-out infinite; }
+.orb-drift-b { animation: drift-b 26s ease-in-out infinite; }
+.orb-drift-c { animation: drift-c 19s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-drift-a, .orb-drift-b, .orb-drift-c, .animate-fade-in-up { animation: none; }
+}
+
+/* Diagonal shine sweep for primary/accent buttons on hover. */
+.btn-shine { position: relative; overflow: hidden; }
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.28) 50%, transparent 60%);
+  transform: translateX(-130%);
+}
+.btn-shine:hover::after { transform: translateX(130%); transition: transform 0.65s ease; }
+
+/* Snap-in for a just-reached milestone (e.g. an approved decision marker). */
+@keyframes pop-in {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-pop-in { animation: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }

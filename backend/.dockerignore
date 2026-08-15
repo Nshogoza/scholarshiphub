@@ -1,0 +1,7 @@
+target
+logs
+uploads
+build-test-uploads
+.env
+.env.*
+!.env.example

@@ -1,0 +1,46 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup script, version 3.3.2
+#
+# Downloads (once) the maven-wrapper jar declared in
+# .mvn/wrapper/maven-wrapper.properties, then delegates to it. The wrapper
+# jar in turn downloads the exact Maven distribution pinned in that same
+# properties file, so every developer / CI runner builds with an identical
+# Maven version without needing Maven pre-installed.
+# ----------------------------------------------------------------------------
+
+set -e
+
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+WRAPPER_DIR="$BASE_DIR/.mvn/wrapper"
+WRAPPER_JAR="$WRAPPER_DIR/maven-wrapper.jar"
+WRAPPER_PROPERTIES="$WRAPPER_DIR/maven-wrapper.properties"
+
+if [ -z "$JAVA_HOME" ]; then
+  JAVA_CMD="java"
+else
+  JAVA_CMD="$JAVA_HOME/bin/java"
+fi
+
+if [ ! -f "$WRAPPER_JAR" ]; then
+  WRAPPER_URL=$(grep '^wrapperUrl=' "$WRAPPER_PROPERTIES" | cut -d'=' -f2-)
+  echo "Downloading Maven Wrapper from: $WRAPPER_URL"
+  # --noproxy '*' / --no-proxy: some Docker build environments auto-inject an
+  # HTTP(S)_PROXY that isn't reachable from inside the build container and
+  # would otherwise hang this single small download indefinitely. Maven's
+  # own dependency resolution afterwards is unaffected -- it needs an
+  # explicit settings.xml proxy, not these env vars.
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL --noproxy '*' --connect-timeout 15 --max-time 60 -o "$WRAPPER_JAR" "$WRAPPER_URL"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q --no-proxy --timeout=60 -O "$WRAPPER_JAR" "$WRAPPER_URL"
+  else
+    echo "ERROR: need curl or wget to download the Maven Wrapper jar" >&2
+    exit 1
+  fi
+fi
+
+exec "$JAVA_CMD" \
+  -Dmaven.multiModuleProjectDirectory="$BASE_DIR" \
+  -classpath "$WRAPPER_JAR" \
+  org.apache.maven.wrapper.MavenWrapperMain "$@"

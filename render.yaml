@@ -9,6 +9,11 @@
 # REQUIRE_EMAIL_VERIFICATION defaults to false here so the public demo works
 # without wiring up a real SMTP provider first; flip it to true once MAIL_*
 # vars point at a real provider (e.g. Brevo's free tier).
+#
+# No persistent disk is attached -- Render's free web service tier doesn't
+# support them. Uploaded application documents will not survive a restart
+# or redeploy on this plan; upgrade the service plan and add a `disk:`
+# block back if that matters for your demo.
 
 databases:
   - name: scholarshiphub-db
@@ -25,10 +30,6 @@ services:
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     healthCheckPath: /actuator/health
-    disk:
-      name: uploads
-      mountPath: /app/uploads
-      sizeGB: 1
     envVars:
       - key: DB_HOST
         fromDatabase:
